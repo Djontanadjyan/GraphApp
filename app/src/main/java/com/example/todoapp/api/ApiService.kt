@@ -1,16 +1,13 @@
 package com.example.todoapp.api
 
-import android.telecom.Call
-import com.example.todoapp.model.CoordinatesResponse
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import com.example.todoapp.model.Coordinate
+import retrofit2.Response
+import retrofit2.http.*
 
 interface ApiService {
 
-    @FormUrlEncoded
-    @POST("create_coordinate")
+    @Multipart
+    @POST("pointsList?version=1.1")
     suspend fun createCoordinate(
-        @Field("version") version : Double,
-        @Field("count") count : Int) : retrofit2.Call<CoordinatesResponse>
+        @Part("count") count : Int ) :Response<Coordinate>
 }

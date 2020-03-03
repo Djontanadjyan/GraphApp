@@ -1,19 +1,74 @@
 package com.example.todoapp.repository
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import com.example.todoapp.api.RetrofitBuilder
+import com.example.todoapp.model.Coordinate
+import com.example.todoapp.model.Point
+import com.example.todoapp.model.ResponseCoordinate
 import com.example.todoapp.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.HttpException
+import retrofit2.Response
 import kotlin.math.log
 
 object Repository {
 
+    val coor = arrayListOf<Point>()
+
     var job : CompletableJob? = null
 
+    fun getCount(count : Int) :LiveData<ResponseCoordinate> {
+        job = Job()
+        return object : LiveData<ResponseCoordinate>() {
+            override fun onActive() {
+                super.onActive()
+                job?.let { theJob ->
+                    CoroutineScope(IO + theJob).launch {
+                        val response = RetrofitBuilder.apiService.createCoordinate(count)
+                        withContext(Main) {
+                            try {
+                                if (response.isSuccessful) {
+                                    Log.d("Repository", response.body()?.response?.points?.size.toString())
 
+                                } else {
+                                    Log.d("Repository", "Error: ${response.code()}")
+                                }
+                            } catch (e: HttpException) {
+                                Log.d("Repository", "Exception ${e.message}")
+                            } catch (e: Throwable) {
+                                Log.d("Repository", "Ooops: Something else went wrong")
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+//    val coordinates = RetrofitBuilder.apiService.createCoordinate(count)
+//        .enqueue(object : Callback<Coordinate> {
+//            override fun onFailure(call: Call<Coordinate>, t: Throwable) {
+//
+//            }
+//
+//            override fun onResponse(
+//                call: Call<Coordinate>,
+//                response: Response<Coordinate>
+//            ) {
+//                if (response.isSuccessful) {
+//                    for(i in 0..count-1){
+//                        response.body()?.response?.points?.get(i)?.let { coor.add(it) }
+//                    }
+//                    Log.d("Repository" , response.body()?.response?.points?.size.toString())
+//                }
+//            }
+//        })
 
 //    fun getUser(userId: String) : LiveData<User>{
 //        job = Job()
@@ -34,12 +89,11 @@ object Repository {
 //            }
 //        }
 //    }
+    }
+
+        fun cancelJobs() {
+            job?.cancel()
+        }
 
 
-//    fun cancelJobs(){
-//        job?.cancel()
-//    }
-
-
-
-}
+    }
