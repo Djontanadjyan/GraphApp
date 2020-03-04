@@ -36,5 +36,7 @@ data class Event<out T>(val status: Status, val data: T?, val error: T?, val err
 enum class Status {
     SUCCESS,
     ERROR,
-    ERROR64
+    ERROR64;
+
+
 }

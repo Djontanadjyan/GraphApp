@@ -31,7 +31,7 @@ object Repository {
                                     when (response.body()?.response?.result) {
                                         0 -> value = Event.success(response.body())
                                         -100 -> value = Event.error(response.body())
-                                        -1 -> value = Event.error64(response.body())
+                                        -101 -> value = Event.error64(response.body())
                                     }
                                 }
                             } catch (e: HttpException) {
