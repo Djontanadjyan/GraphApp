@@ -6,7 +6,5 @@ data class Coordinate(
     @SerializedName("reqId")
     val reqId: Any,
     @SerializedName("response")
-    val response: ResponseCoordinate,
-    @SerializedName("result")
-    val result: Int
+    val response: ResponseCoordinate
 )

@@ -1,21 +1,15 @@
 package com.example.todoapp.repository
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
+import com.example.todoapp.model.Event
 import com.example.todoapp.api.RetrofitBuilder
 import com.example.todoapp.model.Coordinate
 import com.example.todoapp.model.Point
-import com.example.todoapp.model.ResponseCoordinate
-import com.example.todoapp.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.HttpException
-import retrofit2.Response
-import kotlin.math.log
 
 object Repository {
 
@@ -23,9 +17,9 @@ object Repository {
 
     var job : CompletableJob? = null
 
-    fun getCount(count : Int) :LiveData<ResponseCoordinate> {
+    fun getCount(count : Int) : LiveData<Event<Coordinate>> {
         job = Job()
-        return object : LiveData<ResponseCoordinate>() {
+        return object : LiveData<Event<Coordinate>>() {
             override fun onActive() {
                 super.onActive()
                 job?.let { theJob ->
@@ -34,17 +28,18 @@ object Repository {
                         withContext(Main) {
                             try {
                                 if (response.isSuccessful) {
-                                    Log.d("Repository", response.body()?.response?.points?.size.toString())
-
-                                } else {
-                                    Log.d("Repository", "Error: ${response.code()}")
+                                    when (response.body()?.response?.result) {
+                                        0 -> value = Event.success(response.body())
+                                        -100 -> value = Event.error(response.body())
+                                        -1 -> value = Event.error64(response.body())
+                                    }
                                 }
                             } catch (e: HttpException) {
                                 Log.d("Repository", "Exception ${e.message}")
                             } catch (e: Throwable) {
                                 Log.d("Repository", "Ooops: Something else went wrong")
                             }
-
+                            theJob.complete()
                         }
                     }
                 }

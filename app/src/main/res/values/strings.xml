@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TodoApp</string>
+    <string name="application_error">Application error</string>
+    <string name="information_text">Information text</string>
+    <string name="go">Go</string>
+    <string name="enter_number">Enter the number of points</string>
+    <string name="error_count_points">Please enter a number of points from 0 to 200</string>
 </resources>

@@ -56,4 +56,8 @@ dependencies {
     // gson
     implementation "com.google.code.gson:gson:2.8.6"
 
+    //CurveGraphView
+    def current_lib_ver = "4.2.2"
+    implementation "com.jjoe64:graphview:$current_lib_ver"
+
 }
