@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(),
 
 
     lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -60,10 +61,9 @@ class MainActivity : AppCompatActivity(),
             when (it.status) {
                 Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
                 Status.ERROR -> allertDialogParams(it.error?.response?.message.toString())
-                Status.ERROR64 -> allertDialog(decodeErrorMessage(it.error64?.response?.message))
+                Status.ERROR64 -> allertDialog(decodeErrorMessage(it.error64?.response?.message.toString()))
             }
         })
-
 
     }
 
@@ -87,8 +87,7 @@ class MainActivity : AppCompatActivity(),
     override fun allertDialogParams(errorMessage: String) {
         val mAllertDialog = AlertDialog.Builder(this)
             .setTitle(R.string.application_error)
-            .setMessage(errorMessage)
-            .setMessage(R.string.error_count_points)
+            .setMessage("$errorMessage\n\n${getString(R.string.error_count_points)}")
         mAllertDialog.show()
     }
 

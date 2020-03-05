@@ -1,35 +1,39 @@
 package com.example.todoapp
 
+import android.graphics.Color
+import android.graphics.CornerPathEffect
+import android.graphics.DashPathEffect
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import com.example.todoapp.model.Point
-import com.example.todoapp.model.Status
-import com.example.todoapp.viewmodel.MainViewModel
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_graph.*
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 
 class GraphActivity :AppCompatActivity() {
 
     var ROWS = 0
-    val COL = 2
+    var COL = 0
     val table by lazy {
         TableLayout(this)
     }
 
     val pointsGraph = arrayListOf<Point>()
-    var pointArray  = arrayListOf<DataPoint>()
+    var series = LineGraphSeries<DataPoint>()
+    val sortedMap = sortedMapOf<Double, Double>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +43,14 @@ class GraphActivity :AppCompatActivity() {
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+
         table.apply {
             layoutParams = lp
             isShrinkAllColumns = true
-            setPadding(50,50,0,0)
+            setPadding(50, 50, 0, 0)
         }
 
-
+        linear.addView(table)
 
         val bundle = intent.extras
 
@@ -54,77 +59,94 @@ class GraphActivity :AppCompatActivity() {
                 val points: ArrayList<Point>? = getParcelableArrayList<Point>("points")
                 Log.d("Intent", points.toString())
                 if (points != null) {
-                    ROWS = points.size
+
                     for (i in 0 until points.size) {
-                        pointsGraph.add(i,points[i])
+                        pointsGraph.add(i, points[i])
                     }
                 }
             }
         }
+        ROWS = pointsGraph.size
+        COL = if(ROWS % 10 ==0){
+            10
+        } else ROWS%10
+
 
         createTable(ROWS, COL)
 
-
-        val gr = findViewById<GraphView>(R.id.graph)
-
-
-
-
-        println(getCoordinates(pointsGraph).toList())
-
-
-
-
-        val series = LineGraphSeries<DataPoint>(
-
-        )
-
-            graph.addSeries(series)
-
-
-
-    }
-
-
-
-
-    fun getCoordinates(pointsGraph: ArrayList<Point>): ArrayList<DataPoint>{
-        for (i in 0 until pointsGraph.size){
-            pointArray.add(DataPoint(pointsGraph[i].x, pointsGraph[i].y))
+        for (i in 0 until pointsGraph.size) {
+            val x = pointsGraph[i].x
+            val y = pointsGraph[i].y
+            sortedMap.put(x, y)
         }
-        return pointArray
-    }
 
 
 
-    fun createTable(rows: Int, cols: Int) {
 
-        for (i in 0 until rows) {
 
-            val row = TableRow(this)
-            row.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+        Log.d("SortedMap", text.toString())
+        for (i in 0 until sortedMap.size) {
+            series.appendData(
+                DataPoint(sortedMap.keys.elementAt(i), sortedMap.values.elementAt(i)),
+                true,
+                1000
             )
+            val paint = Paint()
+            paint.style = Paint.Style.FILL_AND_STROKE
+            paint.strokeWidth = 7f
+            paint.color = Color.RED
+            paint.pathEffect = CornerPathEffect(100f)
+            series.setCustomPaint(paint)
+            series.isDrawDataPoints = true;
+            series.dataPointsRadius = 10f;
+            series.thickness = 8;
 
-
-            for (j in 0 until cols) {
-
-                val textview = TextView(this)
-                textview.setPadding(8,0,8,0)
-                textview.apply {
-                    layoutParams = TableRow.LayoutParams(
-                        TableRow.LayoutParams.MATCH_PARENT,
-                        TableRow.LayoutParams.MATCH_PARENT
-                    )
-                    text = "R $i C $j"
-                }
-                row.addView(textview)
-            }
-            table.addView(row)
         }
-        constraintLayout.addView(table)
+        graph.addSeries(series)
+        graph.viewport.isScalable = true
+//            val bmp = graph.takeSnapshot()
     }
-}
+
+
+
+
+    private fun createTable(rows: Int, cols: Int) {
+
+        val row = Math.ceil(Math.ceil(rows.toDouble()/cols)).toInt()
+            for (i in 0 until row) {
+
+                val row = TableRow(this)
+                row.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+
+                for (j in 0 until cols) {
+
+                    val textview = TextView(this)
+                    textview.setPadding(8, 0, 8, 0)
+                    textview.textSize = 10F
+                    textview.minWidth = 50
+
+                    textview.apply {
+                        layoutParams = TableRow.LayoutParams(
+                            TableRow.LayoutParams.WRAP_CONTENT,
+                            TableRow.LayoutParams.WRAP_CONTENT
+                        )
+                    Log.d("Table", "$")
+
+
+
+
+                    }
+
+                    row.addView(textview)
+                }
+                table.addView(row)
+            }
+        }
+    }
+
+
 
 
