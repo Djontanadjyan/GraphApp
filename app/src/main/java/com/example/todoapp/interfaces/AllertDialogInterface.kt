@@ -1,6 +1,6 @@
 package com.example.todoapp.interfaces
 
-interface allertDialogInterface {
+interface AllertDialogInterface {
 
     fun  allertDialogParams(errorMessage: String)
     fun allertDialog(errorMessage: String)

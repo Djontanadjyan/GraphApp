@@ -3,7 +3,6 @@ package com.example.todoapp
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Base64
@@ -13,14 +12,13 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.todoapp.interfaces.allertDialogInterface
+import com.example.todoapp.interfaces.AllertDialogInterface
 import com.example.todoapp.model.Point
 import com.example.todoapp.model.Status
 import com.example.todoapp.viewmodel.MainViewModel
-import java.io.Serializable
 
 class MainActivity : AppCompatActivity(),
-    allertDialogInterface {
+    AllertDialogInterface {
 
 
     lateinit var viewModel: MainViewModel
@@ -39,6 +37,7 @@ class MainActivity : AppCompatActivity(),
 
         editText.addTextChangedListener(object : TextWatcher{
             override fun afterTextChanged(p0: Editable?) {
+                button.isEnabled = p0.toString().trim{ it <= ' ' }.isNotEmpty()
 
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -60,8 +59,8 @@ class MainActivity : AppCompatActivity(),
         viewModel.count.observe(this, Observer {
             when (it.status) {
                 Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
-                Status.ERROR -> allertDialogParams(it.error?.response?.message.toString())
-                Status.ERROR64 -> allertDialog(decodeErrorMessage(it.error64?.response?.message.toString()))
+                Status.ERROR_PARAMS -> allertDialogParams(it.error?.response?.message.toString())
+                Status.ERROR_OTHER -> allertDialog(decodeErrorMessage(it.error64?.response?.message.toString()))
             }
         })
 

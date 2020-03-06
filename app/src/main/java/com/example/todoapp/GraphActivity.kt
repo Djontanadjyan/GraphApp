@@ -1,35 +1,37 @@
 package com.example.todoapp
 
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.CornerPathEffect
-import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.todoapp.interfaces.SaveImageInterface
+import com.example.todoapp.interfaces.TableInterface
 import com.example.todoapp.model.Point
-import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_graph.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
-import kotlin.collections.ArrayList
+import java.io.File
+import java.io.FileOutputStream
 
 
-class GraphActivity : AppCompatActivity() {
+class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
 
 
     val table by lazy {
@@ -39,6 +41,7 @@ class GraphActivity : AppCompatActivity() {
     val pointsGraph = arrayListOf<Point>()
     var series = LineGraphSeries<DataPoint>()
     val sortedMap = sortedMapOf<Double, Double>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +55,9 @@ class GraphActivity : AppCompatActivity() {
         table.apply {
             layoutParams = lp
             isShrinkAllColumns = true
-            setPadding(50, 50, 0, 0)
+            setPadding(16, 16, 0, 16)
         }
 
-        linear.addView(table)
 
         val bundle = intent.extras
 
@@ -64,7 +66,6 @@ class GraphActivity : AppCompatActivity() {
                 val points: ArrayList<Point>? = getParcelableArrayList<Point>("points")
                 Log.d("Intent", points.toString())
                 if (points != null) {
-
                     for (i in 0 until points.size) {
                         pointsGraph.add(i, points[i])
                     }
@@ -76,11 +77,12 @@ class GraphActivity : AppCompatActivity() {
                 val x = pointsGraph[i].x
                 val y = pointsGraph[i].y
                 sortedMap.put(x, y)
-            }
-            withContext(Main) {
-                createTable(pointsGraph)
-                Log.d("Sorted", sortedMap.keys.toString())
 
+            }
+            createTable(pointsGraph)
+            Log.d("DEBUG: ", Thread.currentThread().name)
+            withContext(Main) {
+                linear.addView(table)
                 for (i in 0 until sortedMap.size) {
                     series.appendData(
                         DataPoint(sortedMap.keys.elementAt(i), sortedMap.values.elementAt(i)),
@@ -93,28 +95,90 @@ class GraphActivity : AppCompatActivity() {
                     paint.color = Color.RED
                     paint.pathEffect = CornerPathEffect(100f)
                     series.setCustomPaint(paint)
-                    series.isDrawDataPoints = true;
-                    series.dataPointsRadius = 10f;
-                    series.thickness = 8;
+                    series.isDrawDataPoints = true
+                    series.dataPointsRadius = 10f
+                    series.thickness = 8
                 }
-
                 graph.addSeries(series)
+                graph.setBackgroundColor(Color.WHITE)
                 graph.viewport.isScalable = true
-//            val bmp = graph.takeSnapshot()
+                graph.setPadding(0, 16, 16, 0)
+                val bmpGraph = graph.takeSnapshot()
+
+                save_button.setOnClickListener {
+                    onClickButton(bmpGraph)
+                }
             }
+        }
+
+    }
+
+    private fun onClickButton(bitmap: Bitmap) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    100
+                )
+
+            } else {
+                saveImageToStorage(bitmap)
+            }
+
+        } else {
+            saveImageToStorage(bitmap)
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == 100) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+            } else {
+                Toast.makeText(this, "Permission not granded", Toast.LENGTH_LONG).show()
+            }
 
-    private suspend fun createTable(points: ArrayList<Point>) {
+        }
+    }
 
-        var rows = 0
-        var cols = 0
-        var  pointsOstSize = points.size %10
-        var  pointsOst : ArrayList<Point> = arrayListOf()
-        for(i in 0 until pointsOstSize){
-            pointsOst.add(points.get(points.size - (pointsOstSize-i)))
+    override fun saveImageToStorage(bitmap: Bitmap) {
+
+        val storageDirectory = getExternalFilesDir(null)?.absolutePath
+        val dir = File(storageDirectory, "/Graph/")
+        dir.mkdir()
+        val file = File(dir, "graph_image.jpg")
+        println(file)
+        try {
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            Log.d("Save", bitmap.toString())
+            stream.flush()
+            stream.close()
+            Toast.makeText(this, "Graph saved succcessfully", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun createTable(points: ArrayList<Point>) {
+
+        var rows: Int
+        var cols: Int
+        val pointsOstSize = points.size % 10
+        val pointsOst: ArrayList<Point> = arrayListOf()
+        for (i in 0 until pointsOstSize) {
+            pointsOst.add(points.get(points.size - (pointsOstSize - i)))
         }
         if (points.size % 10 == 0) {
             rows = points.size / 10
@@ -131,8 +195,9 @@ class GraphActivity : AppCompatActivity() {
         }
     }
 
-    fun createTableDinamic(rows : Int , cols : Int, text : ArrayList<Point>) {
+    override fun createTableDinamic(rows: Int, cols: Int, text: ArrayList<Point>) {
         for (i in 0 until rows) {
+
 
             val row = TableRow(this)
             row.layoutParams = ViewGroup.LayoutParams(
@@ -143,18 +208,18 @@ class GraphActivity : AppCompatActivity() {
 
                 val textview = TextView(this)
                 textview.setPadding(8, 0, 8, 0)
-                textview.textSize = 10F
+                textview.textSize = 8F
                 textview.minWidth = 50
+                textview.setBackgroundResource(R.drawable.border)
                 textview.apply {
                     layoutParams = TableRow.LayoutParams(
                         TableRow.LayoutParams.WRAP_CONTENT,
                         TableRow.LayoutParams.WRAP_CONTENT
                     )
                 }
-                if(i == 0){
-                    textview.text = "${text[j].x}\n${text[j].y}"
-                }
-                else textview.text = "${text[j+i*10].x}\n${text[j+i*10].y}"
+                if (i == 0) {
+                    textview.text = String.format("${text[j].x}\n${text[j].y}")
+                } else textview.text = String.format("${text[j + i * 10].x}\n${text[j + i * 10].y}")
                 row.addView(textview)
             }
             table.addView(row)

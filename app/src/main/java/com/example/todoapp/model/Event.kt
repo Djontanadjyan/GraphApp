@@ -13,20 +13,21 @@ data class Event<out T>(val status: Status, val data: T?, val error: T?, val err
             )
         }
 
-        fun <T> error(error: T?): Event<T> {
+        fun <T> errorParams(errorParams: T?): Event<T> {
             return Event(
-                Status.ERROR,
+                Status.ERROR_PARAMS,
                 null,
-                error,
+                errorParams,
                 null
             )
         }
-        fun <T> error64(error64: T?): Event<T> {
+
+        fun <T> errorOther(errorOther: T?): Event<T> {
             return Event(
-                Status.ERROR,
+                Status.ERROR_OTHER,
                 null,
                 null,
-                error64
+                errorOther
             )
         }
 
@@ -35,8 +36,8 @@ data class Event<out T>(val status: Status, val data: T?, val error: T?, val err
 
 enum class Status {
     SUCCESS,
-    ERROR,
-    ERROR64;
+    ERROR_PARAMS,
+    ERROR_OTHER;
 
 
 }

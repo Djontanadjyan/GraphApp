@@ -30,8 +30,8 @@ object Repository {
                                 if (response.isSuccessful) {
                                     when (response.body()?.response?.result) {
                                         0 -> value = Event.success(response.body())
-                                        -100 -> value = Event.error(response.body())
-                                        -101 -> value = Event.error64(response.body())
+                                        -100 -> value = Event.errorParams(response.body())
+                                        -101 -> value = Event.errorOther(response.body())
                                     }
                                 }
                             } catch (e: HttpException) {
