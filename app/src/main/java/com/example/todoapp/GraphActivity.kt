@@ -210,6 +210,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
                 textview.setPadding(8, 0, 8, 0)
                 textview.textSize = 8F
                 textview.minWidth = 50
+                textview.setTextColor(Color.BLACK)
                 textview.setBackgroundResource(R.drawable.border)
                 textview.apply {
                     layoutParams = TableRow.LayoutParams(
