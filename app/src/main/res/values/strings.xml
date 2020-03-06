@@ -6,4 +6,5 @@
     <string name="enter_number">Enter the number of points</string>
     <string name="error_count_points">Please enter a number of points from 1 to 200</string>
     <string name="number_count">point: </string>
+    <string name="message_saved_graph">Graph saved succcessfully</string>
 </resources>

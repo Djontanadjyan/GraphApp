@@ -1,7 +1,6 @@
 package com.example.todoapp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,15 +9,16 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.todoapp.interfaces.AllertDialogInterface
+import com.example.todoapp.interfaces.AlertDialogInterface
 import com.example.todoapp.model.Point
 import com.example.todoapp.model.Status
 import com.example.todoapp.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity(),
-    AllertDialogInterface {
+    AlertDialogInterface {
 
 
     lateinit var viewModel: MainViewModel
@@ -35,17 +35,18 @@ class MainActivity : AppCompatActivity(),
 
         val count = editText.text
 
-        editText.addTextChangedListener(object : TextWatcher{
+        editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                button.isEnabled = p0.toString().trim{ it <= ' ' }.isNotEmpty()
+                button.isEnabled = p0.toString().trim { it <= ' ' }.isNotEmpty()
 
             }
+
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                button.isEnabled = p0.toString().trim{ it <= ' ' }.isNotEmpty()
+                button.isEnabled = p0.toString().trim { it <= ' ' }.isNotEmpty()
             }
         })
 
@@ -59,17 +60,17 @@ class MainActivity : AppCompatActivity(),
         viewModel.count.observe(this, Observer {
             when (it.status) {
                 Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
-                Status.ERROR_PARAMS -> allertDialogParams(it.error?.response?.message.toString())
-                Status.ERROR_OTHER -> allertDialog(decodeErrorMessage(it.error64?.response?.message.toString()))
+                Status.ERROR_PARAMS -> alertDialogParams(it.error?.response?.message.toString())
+                Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.error64?.response?.message.toString()))
             }
         })
 
     }
 
-    fun intentToGraphActivity(points : ArrayList<Point>) {
+    private fun intentToGraphActivity(points: ArrayList<Point>) {
         val intent = Intent(this, GraphActivity::class.java)
         intent.putParcelableArrayListExtra("points", points)
-        Log.d("Intent" , intent.toString())
+        Log.d("Intent", intent.toString())
         startActivity(intent)
     }
 
@@ -83,17 +84,17 @@ class MainActivity : AppCompatActivity(),
         viewModel.cancelJobs()
     }
 
-    override fun allertDialogParams(errorMessage: String) {
-        val mAllertDialog = AlertDialog.Builder(this)
+    override fun alertDialogParams(errorMessage: String) {
+        val mAlertDialog = AlertDialog.Builder(this)
             .setTitle(R.string.application_error)
             .setMessage("$errorMessage\n\n${getString(R.string.error_count_points)}")
-        mAllertDialog.show()
+        mAlertDialog.show()
     }
 
-    override fun allertDialog(errorMessage: String) {
-        val mAllertDialog = AlertDialog.Builder(this)
+    override fun alertDialogOther(errorMessage: String) {
+        val mAlertDialog = AlertDialog.Builder(this)
             .setTitle(R.string.application_error)
             .setMessage(errorMessage)
-        mAllertDialog.show()
+        mAlertDialog.show()
     }
 }

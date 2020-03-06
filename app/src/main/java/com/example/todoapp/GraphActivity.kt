@@ -38,9 +38,9 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
         TableLayout(this)
     }
 
-    val pointsGraph = arrayListOf<Point>()
-    var series = LineGraphSeries<DataPoint>()
-    val sortedMap = sortedMapOf<Double, Double>()
+    private val pointsGraph = arrayListOf<Point>()
+    private var series = LineGraphSeries<DataPoint>()
+    private val sortedMap = sortedMapOf<Double, Double>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +76,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
             for (i in 0 until pointsGraph.size) {
                 val x = pointsGraph[i].x
                 val y = pointsGraph[i].y
-                sortedMap.put(x, y)
+                sortedMap[x] = y
 
             }
             createTable(pointsGraph)
@@ -146,7 +146,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             } else {
-                Toast.makeText(this, "Permission not granded", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Permission not granted", Toast.LENGTH_LONG).show()
             }
 
         }
@@ -165,7 +165,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
             Log.d("Save", bitmap.toString())
             stream.flush()
             stream.close()
-            Toast.makeText(this, "Graph saved succcessfully", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.message_saved_graph), Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -195,7 +195,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
         }
     }
 
-    override fun createTableDinamic(rows: Int, cols: Int, text: ArrayList<Point>) {
+    override fun createTableDinamic(rows: Int, cols: Int, points: ArrayList<Point>) {
         for (i in 0 until rows) {
 
 
@@ -218,8 +218,8 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
                     )
                 }
                 if (i == 0) {
-                    textview.text = String.format("${text[j].x}\n${text[j].y}")
-                } else textview.text = String.format("${text[j + i * 10].x}\n${text[j + i * 10].y}")
+                    textview.text = String.format("${points[j].x}\n${points[j].y}")
+                } else textview.text = String.format("${points[j + i * 10].x}\n${points[j + i * 10].y}")
                 row.addView(textview)
             }
             table.addView(row)

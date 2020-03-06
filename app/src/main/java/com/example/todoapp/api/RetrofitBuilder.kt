@@ -11,12 +11,12 @@ import javax.net.ssl.X509TrustManager
 
 object RetrofitBuilder {
 
-    const val BASE_URL: String = "https://demo.bankplus.ru/mobws/json/"
+    private const val BASE_URL: String = "https://demo.bankplus.ru/mobws/json/"
 
-    val interceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val interceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 
 
-    val retrofitBuilder: Retrofit.Builder by lazy {
+    private val retrofitBuilder: Retrofit.Builder by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
