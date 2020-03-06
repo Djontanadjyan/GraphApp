@@ -33,7 +33,6 @@ import java.io.FileOutputStream
 
 class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
 
-
     val table by lazy {
         TableLayout(this)
     }
@@ -77,10 +76,8 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
                 val x = pointsGraph[i].x
                 val y = pointsGraph[i].y
                 sortedMap[x] = y
-
             }
             createTable(pointsGraph)
-            Log.d("DEBUG: ", Thread.currentThread().name)
             withContext(Main) {
                 linear.addView(table)
                 for (i in 0 until sortedMap.size) {
@@ -110,24 +107,15 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
                 }
             }
         }
-
     }
 
     private fun onClickButton(bitmap: Bitmap) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    100
-                )
-
+            ) { ActivityCompat.requestPermissions(this,
+                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 100)
             } else {
                 saveImageToStorage(bitmap)
             }
@@ -137,18 +125,13 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == 100) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                Toast.makeText(this, "Permission granted, please tap on button again", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(this, "Permission not granted", Toast.LENGTH_LONG).show()
             }
-
         }
     }
 
@@ -172,7 +155,6 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
     }
 
     private fun createTable(points: ArrayList<Point>) {
-
         var rows: Int
         var cols: Int
         val pointsOstSize = points.size % 10
@@ -183,29 +165,26 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
         if (points.size % 10 == 0) {
             rows = points.size / 10
             cols = 10
-            createTableDinamic(rows, cols, points)
+            createTableDynamics(rows, cols, points)
 
         } else {
             rows = points.size / 10
             cols = 10
-            createTableDinamic(rows, cols, points)
+            createTableDynamics(rows, cols, points)
             rows = 1
             cols = pointsOstSize
-            createTableDinamic(rows, cols, pointsOst)
+            createTableDynamics(rows, cols, pointsOst)
         }
     }
 
-    override fun createTableDinamic(rows: Int, cols: Int, points: ArrayList<Point>) {
+    override fun createTableDynamics(rows: Int, cols: Int, points: ArrayList<Point>) {
         for (i in 0 until rows) {
-
-
             val row = TableRow(this)
             row.layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             for (j in 0 until cols) {
-
                 val textview = TextView(this)
                 textview.setPadding(8, 0, 8, 0)
                 textview.textSize = 8F

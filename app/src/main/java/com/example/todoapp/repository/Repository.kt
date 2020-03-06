@@ -13,8 +13,6 @@ import retrofit2.HttpException
 
 object Repository {
 
-    val coor = arrayListOf<Point>()
-
     var job : CompletableJob? = null
 
     fun getCount(count : Int) : LiveData<Event<Coordinate>> {
@@ -45,50 +43,9 @@ object Repository {
                 }
             }
         }
-
-//    val coordinates = RetrofitBuilder.apiService.createCoordinate(count)
-//        .enqueue(object : Callback<Coordinate> {
-//            override fun onFailure(call: Call<Coordinate>, t: Throwable) {
-//
-//            }
-//
-//            override fun onResponse(
-//                call: Call<Coordinate>,
-//                response: Response<Coordinate>
-//            ) {
-//                if (response.isSuccessful) {
-//                    for(i in 0..count-1){
-//                        response.body()?.response?.points?.get(i)?.let { coor.add(it) }
-//                    }
-//                    Log.d("Repository" , response.body()?.response?.points?.size.toString())
-//                }
-//            }
-//        })
-
-//    fun getUser(userId: String) : LiveData<User>{
-//        job = Job()
-//        return object : LiveData<User>(){
-//            override fun onActive() {
-//                super.onActive()
-//                job?.let {theJob ->
-//                    CoroutineScope(IO + theJob).launch {
-//                        val user = RetrofitBuilder.apiService.getUser(userId)
-//                        withContext(Main){
-//                            value = user
-//                            theJob.complete()
-//                        }
-//                    }
-//
-//                }
-
-//            }
-//        }
-//    }
     }
 
         fun cancelJobs() {
             job?.cancel()
         }
-
-
     }
