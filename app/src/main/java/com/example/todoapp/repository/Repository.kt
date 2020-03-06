@@ -32,7 +32,6 @@ object Repository {
                                         -101 -> value = Event.errorOther(response.body())
                                     }
                                     value = Event.default(null)
-
                                 }
                             } catch (e: HttpException) {
                                 Log.d("Repository", "Exception ${e.message}")

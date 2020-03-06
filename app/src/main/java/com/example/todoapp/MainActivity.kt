@@ -65,32 +65,7 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
-
-
-
-        Log.d("MainActivity", "onCreate")
     }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("MainActivity", "onResume")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d("MainActivity", "onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("MainActivity", "onStop")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("MainActivity", "onPause")
-    }
-
 
     private fun intentToGraphActivity(points: ArrayList<Point>) {
         val intent = Intent(this, GraphActivity::class.java)
@@ -109,7 +84,6 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         viewModel.cancelJobs()
-        Log.d("MainActivity", "onDestroy")
     }
 
 
