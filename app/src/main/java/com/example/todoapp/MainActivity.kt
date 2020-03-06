@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.todoapp.interfaces.AlertDialogInterface
+import com.example.todoapp.model.Coordinate
+import com.example.todoapp.model.Event
 import com.example.todoapp.model.Point
 import com.example.todoapp.model.Status
 import com.example.todoapp.viewmodel.MainViewModel
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var viewModel: MainViewModel
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -31,8 +34,6 @@ class MainActivity : AppCompatActivity(),
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         button.isEnabled = false
-
-
 
         edit.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
@@ -49,21 +50,47 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
-
         button.setOnClickListener {
-            val count = edit.text
-            viewModel.setCount(count.toString().toInt())
+            val count = edit.text.toString().toInt()
+            viewModel.setCount(count)
 
-            viewModel.count.observe(this, Observer {
-                when (it.status) {
-                    Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
-                    Status.ERROR_PARAMS -> alertDialogParams(it.error?.response?.message.toString())
-                    Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.error64?.response?.message.toString()))
-                }
-            })
         }
 
+        viewModel.count.observe(this, Observer {
+            when (it.status) {
+                Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
+                Status.ERROR_PARAMS -> alertDialogParams(it.errorParams?.response?.message.toString())
+                Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.errorOther?.response?.message.toString()))
+                Status.DEFAULT -> it.default
+            }
+        })
+
+
+
+
+        Log.d("MainActivity", "onCreate")
     }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("MainActivity", "onResume")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("MainActivity", "onStart")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("MainActivity", "onStop")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("MainActivity", "onPause")
+    }
+
 
     private fun intentToGraphActivity(points: ArrayList<Point>) {
         val intent = Intent(this, GraphActivity::class.java)
@@ -71,6 +98,8 @@ class MainActivity : AppCompatActivity(),
         Log.d("Intent", intent.toString())
         startActivity(intent)
     }
+
+
 
     private fun decodeErrorMessage(errorMessage: String?): String {
         val decodeMessage = Base64.decode(errorMessage, Base64.DEFAULT)
@@ -80,7 +109,11 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         viewModel.cancelJobs()
+        Log.d("MainActivity", "onDestroy")
     }
+
+
+
 
     override fun alertDialogParams(errorMessage: String) {
         val mAlertDialog = AlertDialog.Builder(this)

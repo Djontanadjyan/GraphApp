@@ -19,13 +19,9 @@ class MainViewModel : ViewModel(){
             count -> Repository.getCount(count.toInt())
         }
 
-
     fun setCount(count: Int){
 
         val update = count
-        if(_count.value == update){
-            return
-        }
         _count.value=update
     }
 

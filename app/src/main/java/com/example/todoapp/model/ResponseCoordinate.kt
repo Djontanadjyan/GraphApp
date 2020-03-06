@@ -8,5 +8,5 @@ data class ResponseCoordinate(
     @SerializedName("message")
     val message: String,
     @SerializedName("points")
-    val points: List<Point>
+    val points: ArrayList<Point>
 )
