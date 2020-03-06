@@ -16,7 +16,7 @@ class MainViewModel : ViewModel(){
 
     val count: LiveData<Event<Coordinate>> = Transformations
         .switchMap(_count){
-            count -> Repository.getCount(count)
+            count -> Repository.getCount(count.toInt())
         }
 
 

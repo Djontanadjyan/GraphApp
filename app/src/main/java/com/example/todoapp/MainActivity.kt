@@ -16,6 +16,7 @@ import com.example.todoapp.interfaces.AlertDialogInterface
 import com.example.todoapp.model.Point
 import com.example.todoapp.model.Status
 import com.example.todoapp.viewmodel.MainViewModel
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(),
     AlertDialogInterface {
@@ -27,15 +28,13 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val editText = findViewById<EditText>(R.id.edit)
-
-        val button = findViewById<Button>(R.id.button)
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         button.isEnabled = false
 
-        val count = editText.text
 
-        editText.addTextChangedListener(object : TextWatcher {
+
+        edit.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
                 button.isEnabled = p0.toString().trim { it <= ' ' }.isNotEmpty()
 
@@ -52,18 +51,17 @@ class MainActivity : AppCompatActivity(),
 
 
         button.setOnClickListener {
+            val count = edit.text
             viewModel.setCount(count.toString().toInt())
+
+            viewModel.count.observe(this, Observer {
+                when (it.status) {
+                    Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
+                    Status.ERROR_PARAMS -> alertDialogParams(it.error?.response?.message.toString())
+                    Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.error64?.response?.message.toString()))
+                }
+            })
         }
-
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
-        viewModel.count.observe(this, Observer {
-            when (it.status) {
-                Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
-                Status.ERROR_PARAMS -> alertDialogParams(it.error?.response?.message.toString())
-                Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.error64?.response?.message.toString()))
-            }
-        })
 
     }
 
@@ -97,5 +95,6 @@ class MainActivity : AppCompatActivity(),
             .setMessage(errorMessage)
         mAlertDialog.show()
     }
+
 }
 

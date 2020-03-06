@@ -25,6 +25,7 @@ import kotlinx.android.synthetic.main.activity_graph.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -100,6 +101,7 @@ class GraphActivity : AppCompatActivity(), TableInterface, SaveImageInterface {
                 graph.setBackgroundColor(Color.WHITE)
                 graph.viewport.isScalable = true
                 graph.setPadding(0, 16, 16, 0)
+                delay(1000)
                 val bmpGraph = graph.takeSnapshot()
 
                 save_button.setOnClickListener {
