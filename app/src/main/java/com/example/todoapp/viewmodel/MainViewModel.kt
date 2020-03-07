@@ -23,9 +23,9 @@ class MainViewModel : ViewModel(){
     fun setCount(count: Int){
 
         val update = count
-        if(_count.value == update){
-            return
-        }
+//        if(_count.value == update){
+//            return
+//        }
         _count.value=update
     }
 

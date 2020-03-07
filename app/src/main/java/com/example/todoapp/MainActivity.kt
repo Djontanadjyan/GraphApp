@@ -1,28 +1,25 @@
 package com.example.todoapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.todoapp.interfaces.AlertDialogInterface
-import com.example.todoapp.model.Coordinate
-import com.example.todoapp.model.Event
 import com.example.todoapp.model.Point
 import com.example.todoapp.model.Status
 import com.example.todoapp.viewmodel.MainViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(),
-    AlertDialogInterface {
-
+    AlertDialogInterface{
 
     private lateinit var viewModel: MainViewModel
 
@@ -55,15 +52,16 @@ class MainActivity : AppCompatActivity(),
             viewModel.setCount(count)
 
         }
+            viewModel.count.observe(this, Observer {
+                when (it.status) {
+                    Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
+                    Status.ERROR_PARAMS -> alertDialogParams(it.errorParams?.response?.message.toString())
+                    Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.errorOther?.response?.message.toString()))
+                    Status.DEFAULT -> it.default
+                }
+            })
 
-        viewModel.count.observe(this, Observer {
-            when (it.status) {
-                Status.SUCCESS -> intentToGraphActivity(it.data?.response?.points as ArrayList<Point>)
-                Status.ERROR_PARAMS -> alertDialogParams(it.errorParams?.response?.message.toString())
-                Status.ERROR_OTHER -> alertDialogOther(decodeErrorMessage(it.errorOther?.response?.message.toString()))
-                Status.DEFAULT -> it.default
-            }
-        })
+
 
     }
 
@@ -102,6 +100,7 @@ class MainActivity : AppCompatActivity(),
             .setMessage(errorMessage)
         mAlertDialog.show()
     }
+
 
 }
 
